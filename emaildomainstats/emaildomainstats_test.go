@@ -70,7 +70,7 @@ func TestProcesFileTestCases(t *testing.T) {
 		// When the data is processed and written to output
 		buf := new(bytes.Buffer)
 		// And no errors are expected
-		if err := ProcessData(in, buf); err != nil {
+		if err := ProcessData(in, buf, 2); err != nil {
 			t.Fail()
 		}
 		// Then the output contains the expected data
@@ -89,7 +89,7 @@ func TestProcessFileEmptyCSV(t *testing.T) {
 
 	// When the data is processed
 	buf := new(bytes.Buffer)
-	if err := ProcessData(in, buf); err == nil {
+	if err := ProcessData(in, buf, 2); err == nil {
 		// Then an error is produces
 		t.Fail()
 	}
@@ -111,7 +111,7 @@ func BenchmarkTestThousandLineFile(b *testing.B) {
 	// When the data is processed and written to output
 	buf := new(bytes.Buffer)
 	// Then no errors are expected
-	if err := ProcessData(in, buf); err != nil {
+	if err := ProcessData(in, buf, 2); err != nil {
 		b.Fail()
 	}
 }

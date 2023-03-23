@@ -28,7 +28,7 @@ type domainStats map[string]map[string]bool
 
 // ProcessData holds the main functionality of the emaildomainstats package
 // it takes an io.Reader providing CSV data and an io.Writer to writeh the output CSV data too
-func ProcessData(dataReader io.Reader, dataWriter io.Writer) error {
+func ProcessData(dataReader io.Reader, dataWriter io.Writer, emailIndex int) error {
 	csvReader := csv.NewReader(dataReader)
 	domainRegister := make(domainStats)
 
@@ -45,13 +45,13 @@ func ProcessData(dataReader io.Reader, dataWriter io.Writer) error {
 			break
 		}
 		if err != nil {
-			log.Printf("error reading csv line %d: %s\n", i, err)
+			log.Printf("Error reading csv line %d: %s\n", i, err)
 			continue
 		}
 
-		customer, domain, err := splitEmail(row[2])
+		customer, domain, err := splitEmail(row[emailIndex])
 		if err != nil {
-			log.Printf("error processing line %d: %s\n", i, err)
+			log.Printf("Error processing line %d: %s\n", i, err)
 			continue
 		}
 
@@ -84,7 +84,7 @@ func splitEmail(email string) (string, string, error) {
 	return splitEmail[0], splitEmail[1], nil
 }
 
-// processDomainStatsOutput takes a domainStats dataset, formats it, sort it and
+// processDomainStatsOutput takes a domainStats dataset, formats it, sorts it and
 // writes the domain and customer count to the provided io.Writer
 func processDomainStatsOutput(stats domainStats, outputWriter io.Writer) error {
 	writer := csv.NewWriter(outputWriter)
@@ -92,6 +92,7 @@ func processDomainStatsOutput(stats domainStats, outputWriter io.Writer) error {
 	for domain, customerList := range stats {
 		outputDomainStats = append(outputDomainStats, []string{domain, strconv.Itoa(len(customerList))})
 	}
+
 	// Sort the output alphabetically, grouping capital and lower case letters together
 	sort.Slice(outputDomainStats, func(i, j int) bool {
 		if strings.EqualFold(outputDomainStats[i][0], outputDomainStats[j][0]) {
@@ -99,6 +100,7 @@ func processDomainStatsOutput(stats domainStats, outputWriter io.Writer) error {
 		}
 		return strings.ToLower(outputDomainStats[i][0]) < strings.ToLower(outputDomainStats[j][0])
 	})
+
 	if err := writer.WriteAll(outputDomainStats); err != nil {
 		return fmt.Errorf("error while writing CSV to output: %s", err)
 	}

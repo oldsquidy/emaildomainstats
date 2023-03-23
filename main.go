@@ -18,7 +18,7 @@ func main() {
 	}
 	defer reader.Close()
 
-	if err := emaildomainstats.ProcessData(reader, os.Stdout); err != nil {
+	if err := emaildomainstats.ProcessData(reader, os.Stdout, 2); err != nil {
 		log.Fatal(err)
 	}
 }
